@@ -1,4 +1,5 @@
 using AbcDesign.Business;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,8 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 
-// DI Business logics.  Controllers call the business layer for data
-builder.Services.AddTransient<ICatalogManager, CatalogManager>();
+// DbContext. The default DI lifetime of AddDbContext is Scoped.
+builder.Services.AddDbContext<AbcDesign.DataLayer.MainDbContext>(opt => {
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("MainDB"));
+});
+
+
+// DI Business logic. Controllers call the business layer for data
+builder.Services.AddScoped<ICatalogManager, CatalogManager>();
 
 
 var app = builder.Build();

@@ -1,29 +1,36 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace AbcDesign.Business;
 
 public class CatalogManager : ICatalogManager
 {
-	private string _dbstr;
+	private readonly string _dbstr;
+	private readonly DataLayer.MainDbContext _dbContext;
 
 
-	public CatalogManager(IConfiguration configuration)
+	public CatalogManager(IConfiguration configuration, DataLayer.MainDbContext dbContext)
 	{
 		_dbstr = configuration.GetConnectionString("MainDB")!;
+		_dbContext = dbContext;
 	}
 
-	/* useful for testing  */
-	public CatalogManager(string dbstr)
+
+	public CatalogManager(string dbstr, DataLayer.MainDbContext dbContext)
 	{
 		_dbstr = dbstr;
+		_dbContext = dbContext;
 	}
 
 
 	public Entities.Catalog.Product? GetProduct(int productId)
 	{
-		var db = new DataLayer.CatalogDB(_dbstr);
-		var et = db.GetProduct(productId);
+		var et = _dbContext.Products
+			.AsNoTracking()
+			.Include(e => e.Category)			
+			.SingleOrDefault(p => p.ProductId == productId);
 
+		// if require some other logic.
 		// ...
 
 		return et;

@@ -5,11 +5,15 @@ namespace AbcDesign.DataLayer;
 
 /*
 	Should only contain configurations.
-	Internal within data layer.
 */
-internal class MainDbContext : DbContext
+public class MainDbContext : DbContext
 {
-	private readonly string _dbstr;
+	private readonly string _dbstr = null!;
+
+
+	public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
+	{		
+	}
 
 	public MainDbContext(string dbstr)
 	{
@@ -19,7 +23,11 @@ internal class MainDbContext : DbContext
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
 		base.OnConfiguring(optionsBuilder);
-		optionsBuilder.UseSqlServer(_dbstr);
+
+		if (_dbstr != null)
+		{
+			optionsBuilder.UseSqlServer(_dbstr);
+		}		
 	}
 
 
